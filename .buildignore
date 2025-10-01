@@ -1,0 +1,7 @@
+.buildignore
+build.sh
+.git
+.gitignore
+.DS_Store
+CLAUDE.md
+README.md
