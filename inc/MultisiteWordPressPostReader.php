@@ -5,10 +5,10 @@
  * Extracts blog_id from multisite URLs and switches context to read posts from any
  * site in the network.
  *
- * @package DMMultisite
+ * @package DataMachineMultisite
  */
 
-namespace DMMultisite;
+namespace DataMachineMultisite;
 
 defined('ABSPATH') || exit;
 

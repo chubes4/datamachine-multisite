@@ -2,6 +2,21 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with the DM-Multisite extension.
 
+## Migration Status
+
+**Prefix Migration:**
+- Current: Migrated to `datamachine_` prefix throughout
+- Status: Complete - all `dm_` prefixes updated to `datamachine_`
+- Details: See root `/CLAUDE.md` and `/MIGRATION-PLAN.md` for complete migration status
+
+**REST API Integration:**
+- Integration Method: Filter-based AI tool registration (no custom REST endpoints needed)
+- Core Endpoint Used: `/datamachine/v1/execute` (automatic integration via `ai_tools` filter)
+- Pattern: DM Multisite extends AI tools via filters - Data Machine core handles all REST API operations
+- Dual-Layer: Network-wide tool discovery (`datamachine_ai_tools_multisite`) + Data Machine integration (`ai_tools`)
+- Documentation: See `/datamachine/docs/api-reference/rest-api-extensions.md` for filter-based integration pattern
+- Note: No custom REST API endpoints required - tools integrate seamlessly with Data Machine execution engine
+
 ## Project Overview
 
 **Data Machine Multisite** is a lightweight WordPress multisite extension that exposes Data Machine's 4 general AI tools network-wide, enabling any plugin on any site to use AI capabilities without requiring Data Machine installation on every site.
@@ -10,7 +25,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ### Dual-Layer Filter System
 
-**Layer 1: Network Discovery** (`dm_ai_tools_multisite`)
+**Layer 1: Network Discovery** (`datamachine_ai_tools_multisite`)
 - Exposes tools to ANY plugin in the network via custom filter
 - Works on sites WITHOUT Data Machine installed
 - Provides all 4 general tools (Google Search, WebFetch, Local Search, WordPress Post Reader)
@@ -31,7 +46,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ```
 dm-multisite/
-├── dm-multisite.php                     # Main plugin file
+├── datamachine-multisite.php                     # Main plugin file
 ├── inc/
 │   ├── ToolRegistry.php                 # Dual-layer filter architecture
 │   ├── MultisiteLocalSearch.php         # Cross-site search
@@ -42,7 +57,7 @@ dm-multisite/
 
 ## Core Components
 
-### dm-multisite.php
+### datamachine-multisite.php
 
 **Purpose**: Main plugin file with initialization and validation
 
@@ -61,7 +76,7 @@ if (!is_plugin_active_for_network(plugin_basename(__FILE__))) {
 }
 
 // Initialize at priority 25 (after Data Machine)
-add_action('plugins_loaded', 'run_dm_multisite', 25);
+add_action('plugins_loaded', 'run_datamachine_multisite', 25);
 ```
 
 ### ToolRegistry.php
@@ -71,7 +86,7 @@ add_action('plugins_loaded', 'run_dm_multisite', 25);
 **Layer 1 - Network Discovery**:
 ```php
 public function register_network_tools() {
-    add_filter('dm_ai_tools_multisite', [$this, 'get_network_tools'], 10, 1);
+    add_filter('datamachine_ai_tools_multisite', [$this, 'get_network_tools'], 10, 1);
 }
 
 public function get_network_tools($tools = []) {
@@ -295,7 +310,7 @@ private static function get_current_site_metadata(): array {
 ```
 
 **Caching Strategy**:
-- **Cache Key**: `dm_multisite_site_context`
+- **Cache Key**: `datamachine_multisite_site_context`
 - **Cache Duration**: `0` (permanent until invalidated)
 - **Invalidation Triggers**: Post changes, term changes, site changes, option changes
 - **Rationale**: Comprehensive invalidation hooks eliminate need for time-based expiration
@@ -366,14 +381,14 @@ Data Machine's `GoogleSearch.php` uses `get_site_option()` / `update_site_option
 ```php
 // In Data Machine core: GoogleSearch.php
 public static function get_config(): array {
-    $config = get_site_option('dm_search_config', []); // Network-wide
+    $config = get_site_option('datamachine_search_config', []); // Network-wide
     return $config['google_search'] ?? [];
 }
 
 public function save_configuration($tool_id, $config_data) {
-    $stored_config = get_site_option('dm_search_config', []);
+    $stored_config = get_site_option('datamachine_search_config', []);
     $stored_config['google_search'] = [...];
-    update_site_option('dm_search_config', $stored_config); // Network-wide
+    update_site_option('datamachine_search_config', $stored_config); // Network-wide
 }
 ```
 
@@ -392,8 +407,8 @@ class ChatAgent {
     private $tools = [];
 
     public function __construct() {
-        // Discover tools via dm_ai_tools_multisite
-        $this->tools = apply_filters('dm_ai_tools_multisite', []);
+        // Discover tools via datamachine_ai_tools_multisite
+        $this->tools = apply_filters('datamachine_ai_tools_multisite', []);
     }
 
     public function search_web($query) {
@@ -460,7 +475,7 @@ To add a new multisite-aware tool:
 
 **Test Scenarios**:
 1. Network activation check - verify plugin requires network activation
-2. Tool discovery - test `dm_ai_tools_multisite` returns 4 tools
+2. Tool discovery - test `datamachine_ai_tools_multisite` returns 4 tools
 3. Cross-site search - search from site A, verify results from sites B, C, D
 4. Cross-site reading - read post URL from site B while on site A
 5. Configuration sharing - configure on main site, verify accessible from secondary sites
@@ -517,7 +532,7 @@ To add a new multisite-aware tool:
 
 - **Issues**: Report bugs at [GitHub Issues](https://github.com/chubes4/data-machine/issues)
 - **Documentation**: See `README.md` for user-facing documentation
-- **Core Integration**: See `/data-machine/CLAUDE.md` for Data Machine architecture
+- **Core Integration**: See `/datamachine/CLAUDE.md` for Data Machine architecture
 
 ---
 

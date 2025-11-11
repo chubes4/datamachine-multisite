@@ -6,16 +6,16 @@
  * current site metadata, post types, and taxonomies. Uses permanent transient
  * caching with invalidation-on-change strategy.
  *
- * @package DMMultisite
+ * @package DataMachineMultisite
  */
 
-namespace DMMultisite;
+namespace DataMachineMultisite;
 
 defined('ABSPATH') || exit;
 
 class MultisiteSiteContext {
 
-    const CACHE_KEY = 'dm_multisite_site_context';
+    const CACHE_KEY = 'datamachine_multisite_site_context';
     const MAX_SITES = 50; // Limit sites in context for performance
 
     /**

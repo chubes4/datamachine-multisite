@@ -4,7 +4,7 @@
 
 set -e
 
-PLUGIN_SLUG="dm-multisite"
+PLUGIN_SLUG="datamachine-multisite"
 BUILD_DIR="build"
 DIST_FILE="${BUILD_DIR}/${PLUGIN_SLUG}.zip"
 
@@ -34,6 +34,10 @@ fi
 echo "Creating ZIP archive..."
 cd "${BUILD_DIR}"
 zip -r "${PLUGIN_SLUG}.zip" "${PLUGIN_SLUG}" -q
+
+# Clean up temporary build directory
+echo "Cleaning up temporary files..."
+rm -rf "${PLUGIN_SLUG}"
 
 # Verify ZIP was created
 if [ -f "${PLUGIN_SLUG}.zip" ]; then

@@ -2,6 +2,12 @@
 
 Multisite extension for Data Machine that exposes AI tools network-wide and provides multisite-aware search capabilities.
 
+## Migration Status
+
+**Prefix Migration:**
+- Current: Migrated to `datamachine_` prefix throughout
+- Status: Complete - all `dm_` prefixes updated to `datamachine_`
+
 ## Overview
 
 **Data Machine Multisite** enables WordPress multisite networks to share Data Machine's general AI tools across all sites without requiring Data Machine to be installed on every site. This lightweight extension provides:
@@ -34,7 +40,7 @@ Search Google and return structured JSON results with titles, links, and snippet
 
 **Example**:
 ```php
-$tools = apply_filters('dm_ai_tools_multisite', []);
+$tools = apply_filters('datamachine_ai_tools_multisite', []);
 $result = call_user_func(
     [$tools['google_search']['class'], $tools['google_search']['method']],
     ['query' => 'latest music news'],
@@ -49,7 +55,7 @@ Fetch and extract clean content from any web page URL.
 
 **Example**:
 ```php
-$tools = apply_filters('dm_ai_tools_multisite', []);
+$tools = apply_filters('datamachine_ai_tools_multisite', []);
 $result = call_user_func(
     [$tools['webfetch']['class'], $tools['webfetch']['method']],
     ['url' => 'https://example.com/article'],
@@ -64,7 +70,7 @@ Search across ALL sites in the WordPress multisite network with site context.
 
 **Example**:
 ```php
-$tools = apply_filters('dm_ai_tools_multisite', []);
+$tools = apply_filters('datamachine_ai_tools_multisite', []);
 $result = call_user_func(
     [$tools['local_search']['class'], $tools['local_search']['method']],
     [
@@ -85,7 +91,7 @@ Read full content from any WordPress post URL in the multisite network.
 
 **Example**:
 ```php
-$tools = apply_filters('dm_ai_tools_multisite', []);
+$tools = apply_filters('datamachine_ai_tools_multisite', []);
 $result = call_user_func(
     [$tools['wordpress_post_reader']['class'], $tools['wordpress_post_reader']['method']],
     ['url' => 'https://shop.extrachill.com/post/sample-post/'],
@@ -171,7 +177,7 @@ Any plugin on any site in the network can discover and use tools:
 // In your plugin (e.g., ExtraChill-Chat)
 function my_plugin_use_ai_tools() {
     // Discover available tools
-    $tools = apply_filters('dm_ai_tools_multisite', []);
+    $tools = apply_filters('datamachine_ai_tools_multisite', []);
 
     if (empty($tools)) {
         // DM-Multisite not active
@@ -222,7 +228,7 @@ class MyAIAgent {
     private $tools = [];
 
     public function __construct() {
-        $this->tools = apply_filters('dm_ai_tools_multisite', []);
+        $this->tools = apply_filters('datamachine_ai_tools_multisite', []);
     }
 
     public function search_web($query) {
@@ -283,7 +289,7 @@ class MyAIAgent {
 
 ### Dual-Layer Filter System
 
-**Layer 1: Network Discovery** (`dm_ai_tools_multisite`)
+**Layer 1: Network Discovery** (`datamachine_ai_tools_multisite`)
 - Makes tools available to ANY plugin in the network
 - Works on sites WITHOUT Data Machine installed
 - Provides multisite-aware versions of Local Search and Post Reader
@@ -326,7 +332,7 @@ With DM-Multisite:
 
 ```
 dm-multisite/
-├── dm-multisite.php                  # Main plugin file
+├── datamachine-multisite.php                  # Main plugin file
 ├── inc/
 │   ├── ToolRegistry.php              # Dual-layer filter system
 │   ├── MultisiteLocalSearch.php      # Cross-site search
@@ -338,14 +344,14 @@ dm-multisite/
 ### Testing
 
 1. **Network Activation Check**: Verify plugin requires network activation
-2. **Tool Discovery**: Test `dm_ai_tools_multisite` filter returns 4 tools
+2. **Tool Discovery**: Test `datamachine_ai_tools_multisite` filter returns 4 tools
 3. **Cross-Site Search**: Search from one site, verify results from all sites
 4. **Cross-Site Reading**: Read post URL from different site, verify content
 5. **Configuration Sharing**: Configure on main site, use from secondary site
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/chubes4/data-machine/issues)
+- **Issues**: [GitHub Issues](https://github.com/chubes4/datamachine/issues)
 - **Documentation**: See `CLAUDE.md` for technical architecture details
 - **Author**: Chris Huber (https://chubes.net)
 

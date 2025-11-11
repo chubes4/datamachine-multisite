@@ -2,20 +2,20 @@
 /**
  * Tool Registry - Dual-layer filter architecture for exposing Data Machine AI tools network-wide.
  *
- * Layer 1: dm_ai_tools_multisite - Makes tools available to plugins without Data Machine
+ * Layer 1: datamachine_ai_tools_multisite - Makes tools available to plugins without Data Machine
  * Layer 2: ai_tools replacement - Provides multisite-aware versions to Data Machine core
  *
- * @package DMMultisite
+ * @package DataMachineMultisite
  */
 
-namespace DMMultisite;
+namespace DataMachineMultisite;
 
 defined('ABSPATH') || exit;
 
 class ToolRegistry {
 
     public function __construct() {
-        // Layer 1: Expose tools to network via dm_ai_tools_multisite filter
+        // Layer 1: Expose tools to network via datamachine_ai_tools_multisite filter
         add_action('init', [$this, 'register_network_tools'], 10);
 
         // Layer 2: Replace single-site tools with multisite versions in Data Machine core
@@ -24,10 +24,10 @@ class ToolRegistry {
 
     /**
      * Register network-wide tool discovery filter.
-     * Allows any plugin to discover tools via: apply_filters('dm_ai_tools_multisite', [])
+     * Allows any plugin to discover tools via: apply_filters('datamachine_ai_tools_multisite', [])
      */
     public function register_network_tools() {
-        add_filter('dm_ai_tools_multisite', [$this, 'get_network_tools'], 10, 1);
+        add_filter('datamachine_ai_tools_multisite', [$this, 'get_network_tools'], 10, 1);
     }
 
     /**
@@ -71,7 +71,7 @@ class ToolRegistry {
                 ]
             ],
             'local_search' => [
-                'class' => 'DMMultisite\\MultisiteLocalSearch',
+                'class' => 'DataMachineMultisite\\MultisiteLocalSearch',
                 'method' => 'handle_tool_call',
                 'description' => 'Search across ALL sites in the WordPress multisite network and return structured JSON results with post titles, excerpts, permalinks, and site context. Use to find existing content before creating new content. Returns complete search data in JSON format.',
                 'requires_config' => false,
@@ -89,7 +89,7 @@ class ToolRegistry {
                 ]
             ],
             'wordpress_post_reader' => [
-                'class' => 'DMMultisite\\MultisiteWordPressPostReader',
+                'class' => 'DataMachineMultisite\\MultisiteWordPressPostReader',
                 'method' => 'handle_tool_call',
                 'description' => 'Read full content from any WordPress post URL in the multisite network. Extracts complete post data including title, content, metadata, taxonomies, and custom fields. Use for analyzing existing posts from any site in the network.',
                 'requires_config' => false,
@@ -121,7 +121,7 @@ class ToolRegistry {
 
         // Replace local_search with multisite version
         $tools['local_search'] = [
-            'class' => 'DMMultisite\\MultisiteLocalSearch',
+            'class' => 'DataMachineMultisite\\MultisiteLocalSearch',
             'method' => 'handle_tool_call',
             'description' => 'Search across ALL sites in the WordPress multisite network and return structured JSON results with post titles, excerpts, permalinks, and site context. Use to find existing content before creating new content. Returns complete search data in JSON format.',
             'requires_config' => false,
@@ -141,7 +141,7 @@ class ToolRegistry {
 
         // Replace wordpress_post_reader with multisite version
         $tools['wordpress_post_reader'] = [
-            'class' => 'DMMultisite\\MultisiteWordPressPostReader',
+            'class' => 'DataMachineMultisite\\MultisiteWordPressPostReader',
             'method' => 'handle_tool_call',
             'description' => 'Read full content from any WordPress post URL in the multisite network. Extracts complete post data including title, content, metadata, taxonomies, and custom fields. Use for analyzing existing posts from any site in the network.',
             'requires_config' => false,

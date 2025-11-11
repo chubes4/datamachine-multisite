@@ -5,10 +5,10 @@
  * Searches across ALL sites in the WordPress multisite network and returns results
  * with site context (site_name, site_url, site_id).
  *
- * @package DMMultisite
+ * @package DataMachineMultisite
  */
 
-namespace DMMultisite;
+namespace DataMachineMultisite;
 
 defined('ABSPATH') || exit;
 

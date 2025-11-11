@@ -8,10 +8,10 @@
  *
  * Provides network-wide intelligence to any plugin using ai_request filter.
  *
- * @package DMMultisite
+ * @package DataMachineMultisite
  */
 
-namespace DMMultisite;
+namespace DataMachineMultisite;
 
 defined('ABSPATH') || exit;
 
@@ -74,9 +74,9 @@ class MultisiteSiteContextDirective {
  * @param string $directive_class The directive class (SiteContextDirective from DM core)
  * @return string The multisite directive class that replaces it
  */
-add_filter('dm_site_context_directive', function($directive_class) {
+add_filter('datamachine_site_context_directive', function($directive_class) {
     // Replace single-site directive with multisite directive
     return MultisiteSiteContextDirective::class;
 }, 10, 1);
 
-// Note: No direct add_filter('ai_request') here - registered via dm_site_context_directive filter
+// Note: No direct add_filter('ai_request') here - registered via datamachine_site_context_directive filter
