@@ -27,8 +27,8 @@ Multisite extension for Data Machine that exposes AI tools network-wide and prov
 ## Installation
 
 1. **Install Data Machine** on your main site (e.g., extrachill.com)
-2. **Upload dm-multisite** to `/wp-content/plugins/` directory
-3. **Network Activate** dm-multisite from Network Admin → Plugins
+2. **Upload datamachine-multisite** to `/wp-content/plugins/` directory
+3. **Network Activate** datamachine-multisite from Network Admin → Plugins
 4. **Configure Google Search** (optional) in Data Machine Settings on main site
 
 ## The 4 General AI Tools
@@ -40,7 +40,7 @@ Search Google and return structured JSON results with titles, links, and snippet
 
 **Example**:
 ```php
-$tools = apply_filters('datamachine_ai_tools_multisite', []);
+$tools = apply_filters('datamachine_chubes_ai_tools_multisite', []);
 $result = call_user_func(
     [$tools['google_search']['class'], $tools['google_search']['method']],
     ['query' => 'latest music news'],
@@ -55,7 +55,7 @@ Fetch and extract clean content from any web page URL.
 
 **Example**:
 ```php
-$tools = apply_filters('datamachine_ai_tools_multisite', []);
+$tools = apply_filters('datamachine_chubes_ai_tools_multisite', []);
 $result = call_user_func(
     [$tools['webfetch']['class'], $tools['webfetch']['method']],
     ['url' => 'https://example.com/article'],
@@ -70,7 +70,7 @@ Search across ALL sites in the WordPress multisite network with site context.
 
 **Example**:
 ```php
-$tools = apply_filters('datamachine_ai_tools_multisite', []);
+$tools = apply_filters('datamachine_chubes_ai_tools_multisite', []);
 $result = call_user_func(
     [$tools['local_search']['class'], $tools['local_search']['method']],
     [
@@ -91,7 +91,7 @@ Read full content from any WordPress post URL in the multisite network.
 
 **Example**:
 ```php
-$tools = apply_filters('datamachine_ai_tools_multisite', []);
+$tools = apply_filters('datamachine_chubes_ai_tools_multisite', []);
 $result = call_user_func(
     [$tools['wordpress_post_reader']['class'], $tools['wordpress_post_reader']['method']],
     ['url' => 'https://shop.extrachill.com/post/sample-post/'],
@@ -104,7 +104,7 @@ $result = call_user_func(
 
 ## Multisite Site Context
 
-**Automatic Context Injection**: DM-Multisite automatically injects comprehensive network context into ALL AI requests through the global `ai_request` filter.
+**Automatic Context Injection**: DM-Multisite automatically injects comprehensive network context into ALL AI requests through the global `chubes_ai_request` filter.
 
 ### What Gets Injected
 
@@ -123,11 +123,11 @@ Every AI request receives structured JSON context containing:
 
 ### How It Works
 
-DM-Multisite hooks into the `ai_request` filter at priority 50, automatically appending network context to the messages array. This happens transparently for:
+DM-Multisite hooks into the `chubes_ai_request` filter at priority 50, automatically appending network context to the messages array. This happens transparently for:
 
 - ✅ **Data Machine pipelines** (replaces single-site context with multisite context)
 - ✅ **ExtraChill Chat** (provides context on sites without Data Machine)
-- ✅ **Any plugin** using `apply_filters('ai_request', ...)`
+- ✅ **Any plugin** using `apply_filters('chubes_ai_request', ...)`
 
 ### Performance
 
@@ -175,9 +175,9 @@ Any plugin on any site in the network can discover and use tools:
 
 ```php
 // In your plugin (e.g., ExtraChill-Chat)
-function my_plugin_use_ai_tools() {
+function my_plugin_use_chubes_ai_tools() {
     // Discover available tools
-    $tools = apply_filters('datamachine_ai_tools_multisite', []);
+    $tools = apply_filters('datamachine_chubes_ai_tools_multisite', []);
 
     if (empty($tools)) {
         // DM-Multisite not active
@@ -228,7 +228,7 @@ class MyAIAgent {
     private $tools = [];
 
     public function __construct() {
-        $this->tools = apply_filters('datamachine_ai_tools_multisite', []);
+        $this->tools = apply_filters('datamachine_chubes_ai_tools_multisite', []);
     }
 
     public function search_web($query) {
@@ -289,12 +289,12 @@ class MyAIAgent {
 
 ### Dual-Layer Filter System
 
-**Layer 1: Network Discovery** (`datamachine_ai_tools_multisite`)
+**Layer 1: Network Discovery** (`datamachine_chubes_ai_tools_multisite`)
 - Makes tools available to ANY plugin in the network
 - Works on sites WITHOUT Data Machine installed
 - Provides multisite-aware versions of Local Search and Post Reader
 
-**Layer 2: Core Integration** (`ai_tools`)
+**Layer 2: Core Integration** (`chubes_ai_tools`)
 - Replaces single-site tools with multisite versions in Data Machine
 - Ensures Data Machine pipelines use multisite-aware tools
 - Priority 15 (after core tools register at priority 10)
@@ -331,7 +331,7 @@ With DM-Multisite:
 ### File Structure
 
 ```
-dm-multisite/
+datamachine-multisite/
 ├── datamachine-multisite.php                  # Main plugin file
 ├── inc/
 │   ├── ToolRegistry.php              # Dual-layer filter system
@@ -344,7 +344,7 @@ dm-multisite/
 ### Testing
 
 1. **Network Activation Check**: Verify plugin requires network activation
-2. **Tool Discovery**: Test `datamachine_ai_tools_multisite` filter returns 4 tools
+2. **Tool Discovery**: Test `datamachine_chubes_ai_tools_multisite` filter returns 4 tools
 3. **Cross-Site Search**: Search from one site, verify results from all sites
 4. **Cross-Site Reading**: Read post URL from different site, verify content
 5. **Configuration Sharing**: Configure on main site, use from secondary site

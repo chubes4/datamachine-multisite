@@ -17,21 +17,21 @@ class MultisiteWordPressPostReader {
     /**
      * Read WordPress post content from any site in the multisite network.
      *
-     * @param array $parameters Contains 'url' and optional 'include_meta'
+     * @param array $parameters Contains 'source_url' and optional 'include_meta'
      * @param array $tool_def Tool definition (unused)
      * @return array Post data with success status and site context
      */
     public static function handle_tool_call(array $parameters, array $tool_def = []): array {
 
-        if (empty($parameters['url'])) {
+        if (empty($parameters['source_url'])) {
             return [
                 'success' => false,
-                'error' => 'WordPress Post Reader tool call missing required url parameter',
+                'error' => 'WordPress Post Reader tool call missing required source_url parameter',
                 'tool_name' => 'wordpress_post_reader'
             ];
         }
 
-        $source_url = sanitize_url($parameters['url']);
+        $source_url = sanitize_url($parameters['source_url']);
         $include_meta = !empty($parameters['include_meta']);
 
         // Extract blog_id from multisite URL

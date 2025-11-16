@@ -4,18 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ## Migration Status
 
-**Prefix Migration:**
-- Current: Migrated to `datamachine_` prefix throughout
-- Status: Complete - all `dm_` prefixes updated to `datamachine_`
-- Details: See root `/CLAUDE.md` and `/MIGRATION-PLAN.md` for complete migration status
+**Prefix Migration**: ✅ Complete - `datamachine_` prefixes throughout
 
-**REST API Integration:**
-- Integration Method: Filter-based AI tool registration (no custom REST endpoints needed)
-- Core Endpoint Used: `/datamachine/v1/execute` (automatic integration via `ai_tools` filter)
-- Pattern: DM Multisite extends AI tools via filters - Data Machine core handles all REST API operations
-- Dual-Layer: Network-wide tool discovery (`datamachine_ai_tools_multisite`) + Data Machine integration (`ai_tools`)
-- Documentation: See `/datamachine/docs/api-reference/rest-api-extensions.md` for filter-based integration pattern
-- Note: No custom REST API endpoints required - tools integrate seamlessly with Data Machine execution engine
+**REST API Integration**: Filter-based tool registration via `chubes_ai_tools` filter - no custom endpoints needed
 
 ## Project Overview
 
@@ -25,22 +16,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ### Dual-Layer Filter System
 
-**Layer 1: Network Discovery** (`datamachine_ai_tools_multisite`)
-- Exposes tools to ANY plugin in the network via custom filter
-- Works on sites WITHOUT Data Machine installed
-- Provides all 4 general tools (Google Search, WebFetch, Local Search, WordPress Post Reader)
+**Layer 1**: Network discovery via `datamachine_chubes_ai_tools_multisite` filter - exposes tools to ANY network plugin
+**Layer 2**: Core integration via `chubes_ai_tools` filter - replaces single-site tools with multisite versions
 
-**Layer 2: Core Integration** (`ai_tools` replacement)
-- Hooks into Data Machine's `ai_tools` filter at priority 15
-- Replaces single-site Local Search and WordPress Post Reader with multisite versions
-- Ensures Data Machine pipelines get multisite-aware tools automatically
-
-### Key Design Principles
-
-1. **Network Activation Required**: Plugin checks `is_plugin_active_for_network()` on load
-2. **Multisite-Only**: Returns early with admin notice if not multisite
-3. **Zero Core Modifications**: Uses filter system exclusively - no Data Machine code changes needed
-4. **Backward Compatible**: Single-site installations unaffected by core changes
+**Key Principles**: Network activation required, multisite-only, zero core modifications, filter-based
 
 ## File Structure
 
@@ -67,44 +46,16 @@ dm-multisite/
 - Component loading and initialization
 - Hooks into `plugins_loaded` at priority 25 (after Data Machine at priority 20)
 
-**Code Pattern**:
-```php
-// Network activation check
-if (!is_plugin_active_for_network(plugin_basename(__FILE__))) {
-    // Show admin notice
-    return;
-}
-
-// Initialize at priority 25 (after Data Machine)
-add_action('plugins_loaded', 'run_datamachine_multisite', 25);
-```
-
 ### ToolRegistry.php
 
-**Purpose**: Implements dual-layer filter architecture for tool discovery
-
-**Layer 1 - Network Discovery**:
-```php
-public function register_network_tools() {
-    add_filter('datamachine_ai_tools_multisite', [$this, 'get_network_tools'], 10, 1);
-}
-
-public function get_network_tools($tools = []) {
-    // Returns array of 4 tools:
-    // - google_search (core GoogleSearch class)
-    // - webfetch (core WebFetch class)
-    // - local_search (multisite MultisiteLocalSearch class)
-    // - wordpress_post_reader (multisite MultisiteWordPressPostReader class)
-    return $multisite_tools;
-}
-```
+**Purpose**: Dual-layer filter architecture - network discovery + core integration
 
 **Layer 2 - Core Integration**:
 ```php
-add_filter('ai_tools', [$this, 'replace_with_multisite_tools'], 15, 1);
+add_filter('chubes_ai_tools', [$this, 'replace_with_multisite_tools'], 15, 1);
 
 public function replace_with_multisite_tools($tools) {
-    // Only runs if Data Machine's ai_tools filter exists
+    // Only runs if Data Machine's chubes_ai_tools filter exists
     if (empty($tools)) {
         return $tools;
     }
@@ -323,7 +274,7 @@ private static function get_current_site_metadata(): array {
 
 ### MultisiteSiteContextDirective.php
 
-**Purpose**: Injects multisite network context into AI requests via ai_request filter
+**Purpose**: Injects multisite network context into AI requests via chubes_ai_request filter
 
 **Implementation Pattern**:
 ```php
@@ -359,7 +310,7 @@ private static function generate_multisite_context(): string {
 
 **Filter Registration**:
 ```php
-add_filter('ai_request', [MultisiteSiteContextDirective::class, 'inject'], 50, 5);
+add_filter('chubes_ai_request', [MultisiteSiteContextDirective::class, 'inject'], 50, 5);
 ```
 
 **Priority System**:
@@ -370,7 +321,7 @@ add_filter('ai_request', [MultisiteSiteContextDirective::class, 'inject'], 50, 5
 **Automatic Integration**:
 - Works with Data Machine pipelines (replaces single-site context)
 - Works with ExtraChill Chat (provides context where DM not installed)
-- Works with ANY plugin using `ai_request` filter
+- Works with ANY plugin using `chubes_ai_request` filter
 
 ## Data Machine Core Integration
 
@@ -407,8 +358,8 @@ class ChatAgent {
     private $tools = [];
 
     public function __construct() {
-        // Discover tools via datamachine_ai_tools_multisite
-        $this->tools = apply_filters('datamachine_ai_tools_multisite', []);
+        // Discover tools via datamachine_chubes_ai_tools_multisite
+        $this->tools = apply_filters('datamachine_chubes_ai_tools_multisite', []);
     }
 
     public function search_web($query) {
@@ -454,7 +405,7 @@ class ChatAgent {
 
 ### Data Machine Pipeline Integration (Sites With Data Machine)
 
-No code changes needed - multisite tools are automatically injected via `ai_tools` filter replacement at priority 15.
+No code changes needed - multisite tools are automatically injected via `chubes_ai_tools` filter replacement at priority 15.
 
 AI agents in Data Machine pipelines automatically get:
 - Multisite Local Search (searches all network sites)
@@ -475,7 +426,7 @@ To add a new multisite-aware tool:
 
 **Test Scenarios**:
 1. Network activation check - verify plugin requires network activation
-2. Tool discovery - test `datamachine_ai_tools_multisite` returns 4 tools
+2. Tool discovery - test `datamachine_chubes_ai_tools_multisite` returns 4 tools
 3. Cross-site search - search from site A, verify results from sites B, C, D
 4. Cross-site reading - read post URL from site B while on site A
 5. Configuration sharing - configure on main site, verify accessible from secondary sites

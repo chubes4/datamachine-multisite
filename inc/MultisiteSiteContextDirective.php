@@ -3,10 +3,10 @@
  * Multisite Site Context Directive - Priority 50
  *
  * Injects WordPress multisite network context into AI requests. Hooks into
- * ai_request filter at priority 50, replacing Data Machine's single-site
+ * chubes_ai_request filter at priority 50, replacing Data Machine's single-site
  * context directive when both are active.
  *
- * Provides network-wide intelligence to any plugin using ai_request filter.
+ * Provides network-wide intelligence to any plugin using chubes_ai_request filter.
  *
  * @package DataMachineMultisite
  */
@@ -21,13 +21,13 @@ class MultisiteSiteContextDirective {
      * Inject multisite network context into AI request.
      *
      * @param array $request AI request array with messages
-     * @param string $provider_name AI provider name (optional)
-     * @param callable|null $streaming_callback Streaming callback (optional, unused)
-     * @param array $tools Available tools (optional, unused)
-     * @param string|null $pipeline_step_id Pipeline step ID (optional, unused)
+     * @param string $provider_name AI provider name
+     * @param array $tools Available tools (unused)
+     * @param string|null $pipeline_step_id Pipeline step ID (unused)
+     * @param array $payload Execution payload (unused)
      * @return array Modified request with network context added
      */
-    public static function inject($request, $provider_name = '', $streaming_callback = null, $tools = [], $pipeline_step_id = null): array {
+    public static function inject($request, $provider_name, $tools, $pipeline_step_id = null, array $payload = []): array {
         if (!is_multisite()) {
             return $request;
         }
@@ -68,7 +68,7 @@ class MultisiteSiteContextDirective {
 
 /**
  * Replace Data Machine's single-site context with multisite context.
- * This filter allows dm-multisite to completely replace the site context directive
+ * This filter allows datamachine-multisite to completely replace the site context directive
  * instead of adding a second context message.
  *
  * @param string $directive_class The directive class (SiteContextDirective from DM core)
@@ -79,4 +79,4 @@ add_filter('datamachine_site_context_directive', function($directive_class) {
     return MultisiteSiteContextDirective::class;
 }, 10, 1);
 
-// Note: No direct add_filter('ai_request') here - registered via datamachine_site_context_directive filter
+// Note: No direct add_filter('chubes_ai_request') here - registered via datamachine_site_context_directive filter
