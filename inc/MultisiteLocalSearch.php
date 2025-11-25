@@ -12,7 +12,16 @@ namespace DataMachineMultisite;
 
 defined('ABSPATH') || exit;
 
+use \DataMachine\Engine\AI\Tools\ToolRegistrationTrait;
+
 class MultisiteLocalSearch {
+
+    use ToolRegistrationTrait;
+
+    public function __construct() {
+        $this->registerSuccessMessageHandler('local_search');
+        $this->registerGlobalTool('local_search', $this->getToolDefinition());
+    }
 
     /**
      * Execute search across all sites in the multisite network.
@@ -21,7 +30,15 @@ class MultisiteLocalSearch {
      * @param array $tool_def Tool definition (unused)
      * @return array Search results with success status and site context
      */
-    public static function handle_tool_call(array $parameters, array $tool_def = []): array {
+    public function handle_tool_call(array $parameters, array $tool_def = []): array {
+        $job_id = $parameters['job_id'] ?? null;
+        if (!$job_id) {
+            return [
+                'success' => false,
+                'error' => 'job_id parameter is required for multisite operations',
+                'tool_name' => 'local_search'
+            ];
+        }
 
         if (empty($parameters['query'])) {
             return [
@@ -129,6 +146,37 @@ class MultisiteLocalSearch {
      */
     public static function is_configured(): bool {
         return true;
+    }
+
+    /**
+     * Get tool definition for registration.
+     *
+     * @return array Tool definition array
+     */
+    private function getToolDefinition(): array {
+        return [
+            'class' => self::class,
+            'method' => 'handle_tool_call',
+            'description' => 'Search across ALL sites in the WordPress multisite network and return structured JSON results with post titles, excerpts, permalinks, and site context. Use to find existing content before creating new content. Returns complete search data in JSON format.',
+            'requires_config' => false,
+            'parameters' => [
+                'query' => [
+                    'type' => 'string',
+                    'required' => true,
+                    'description' => 'Search terms to find relevant posts across all network sites. Returns JSON with "results" array containing title, link, excerpt, post_type, publish_date, author, site_name, site_url for each match.'
+                ],
+                'post_types' => [
+                    'type' => 'array',
+                    'required' => false,
+                    'description' => 'Post types to search (default: ["post", "page"]). Available types depend on site configuration.'
+                ],
+                'job_id' => [
+                    'type' => 'string',
+                    'required' => true,
+                    'description' => 'Job ID for tracking workflow execution'
+                ]
+            ]
+        ];
     }
 
     /**

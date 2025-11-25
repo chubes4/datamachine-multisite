@@ -56,6 +56,13 @@ function run_datamachine_multisite() {
     // Initialize tool registry
     new DataMachineMultisite\ToolRegistry();
 
+    // Register multisite tools if core plugin is available
+    if (defined('DATAMACHINE_VERSION')) {
+        // Initialize multisite tools
+        new DataMachineMultisite\MultisiteLocalSearch();
+        new DataMachineMultisite\MultisiteWordPressPostReader();
+    }
+
     // Site context directive self-registers via filter at bottom of file
 }
 

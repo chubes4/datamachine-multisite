@@ -12,7 +12,15 @@ namespace DataMachineMultisite;
 
 defined('ABSPATH') || exit;
 
+use \DataMachine\Engine\AI\Tools\ToolRegistrationTrait;
+
 class MultisiteWordPressPostReader {
+
+    use ToolRegistrationTrait;
+
+    public function __construct() {
+        $this->registerGlobalTool('wordpress_post_reader', $this->getToolDefinition());
+    }
 
     /**
      * Read WordPress post content from any site in the multisite network.
@@ -21,7 +29,15 @@ class MultisiteWordPressPostReader {
      * @param array $tool_def Tool definition (unused)
      * @return array Post data with success status and site context
      */
-    public static function handle_tool_call(array $parameters, array $tool_def = []): array {
+    public function handle_tool_call(array $parameters, array $tool_def = []): array {
+        $job_id = $parameters['job_id'] ?? null;
+        if (!$job_id) {
+            return [
+                'success' => false,
+                'error' => 'job_id parameter is required for multisite operations',
+                'tool_name' => 'wordpress_post_reader'
+            ];
+        }
 
         if (empty($parameters['source_url'])) {
             return [
@@ -133,10 +149,49 @@ class MultisiteWordPressPostReader {
 
         restore_current_blog();
 
+        // Store multisite context in engine data for downstream handlers
+        apply_filters('datamachine_engine_data', null, $job_id, [
+            'multisite_blog_id' => $blog_id,
+            'multisite_site_url' => $site_url,
+            'multisite_post_id' => $post_id
+        ]);
+
         return [
             'success' => true,
             'data' => $response_data,
             'tool_name' => 'wordpress_post_reader'
+        ];
+    }
+
+    /**
+     * Get tool definition for registration.
+     *
+     * @return array Tool definition array
+     */
+    private function getToolDefinition(): array {
+        return [
+            'class' => self::class,
+            'method' => 'handle_tool_call',
+            'name' => 'WordPress Post Reader',
+            'description' => 'Read full content from any WordPress post URL in the multisite network. Extracts complete post data including title, content, metadata, taxonomies, and custom fields. Use for analyzing existing posts from any site in the network.',
+            'requires_config' => false,
+            'parameters' => [
+                'source_url' => [
+                    'type' => 'string',
+                    'required' => true,
+                    'description' => 'Full WordPress post URL from any site in the network. Returns JSON with complete post data including title, content, excerpt, author, publish_date, categories, tags, featured_image_url, site_name, site_url.'
+                ],
+                'include_meta' => [
+                    'type' => 'boolean',
+                    'required' => false,
+                    'description' => 'Include custom fields and post meta in response'
+                ],
+                'job_id' => [
+                    'type' => 'string',
+                    'required' => true,
+                    'description' => 'Job ID for tracking workflow execution'
+                ]
+            ]
         ];
     }
 
@@ -146,7 +201,7 @@ class MultisiteWordPressPostReader {
      * @param string $url WordPress post URL
      * @return int|null Blog ID or null if cannot be determined
      */
-    private static function get_blog_id_from_url($url) {
+    private function get_blog_id_from_url($url) {
         // Parse URL to get host and path
         $parsed_url = parse_url($url);
         if (!$parsed_url) {

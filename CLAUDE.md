@@ -481,9 +481,9 @@ To add a new multisite-aware tool:
 
 ## Support
 
-- **Issues**: Report bugs at [GitHub Issues](https://github.com/chubes4/data-machine/issues)
-- **Documentation**: See `README.md` for user-facing documentation
-- **Core Integration**: See `/datamachine/CLAUDE.md` for Data Machine architecture
+- **Issues**: Report bugs via GitHub Issues
+- **Documentation**: See README.md file for user-facing documentation
+- **Core Integration**: See datamachine/CLAUDE.md file for Data Machine architecture
 
 ---
 
